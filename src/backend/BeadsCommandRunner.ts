@@ -77,8 +77,12 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   async list(): Promise<BeadsIssue[]> {
-    const result = await this.runReadJson(["list", "--json"], { cacheTtlMs: 750 });
-    return Array.isArray(result) ? (result as BeadsIssue[]) : [];
+    const result = await this.runReadJson(["list", "--json", "--limit", "500"], { cacheTtlMs: 750 });
+    if (Array.isArray(result)) return result as BeadsIssue[];
+    if (result && typeof result === "object" && Array.isArray((result as { issues?: unknown }).issues)) {
+      return (result as { issues: BeadsIssue[] }).issues;
+    }
+    return [];
   }
 
   async info(): Promise<Record<string, unknown>> {
