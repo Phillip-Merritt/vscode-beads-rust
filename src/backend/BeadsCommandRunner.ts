@@ -61,7 +61,7 @@ export class BeadsCommandRunner implements BeadsBackend {
     this.cwd = params.cwd;
     this.beadsDir = params.beadsDir;
     this.log = params.log.child("CLIBackend");
-    this.minSupportedVersion = params.minSupportedVersion ?? "0.51.0";
+    this.minSupportedVersion = params.minSupportedVersion ?? "0.2.10";
   }
 
   async dispose(): Promise<void> {
@@ -354,12 +354,24 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   private async getBrVersion(): Promise<string | undefined> {
-    const attempts: string[][] = [["version"], ["--version"]];
+    // br version --json returns a flat object like {"version":"0.2.19","branch":"master","commit":"...","build":"release",...}.
+    // The bare `br version` text fallback exists for older br builds or systems where --json is stripped.
+    const attempts: string[][] = [["version", "--json"], ["version"], ["--version"]];
     for (const args of attempts) {
       try {
         const { stdout, stderr } = await this.execCli(args, 1024 * 1024);
-        const version = detectSemver(`${stdout}\n${stderr}`);
-        if (version) return version;
+        // Try JSON shape first.
+        try {
+          const parsed = JSON.parse(stdout);
+          if (parsed && typeof parsed === "object" && typeof parsed.version === "string") {
+            const detected = detectSemver(parsed.version);
+            if (detected) return detected;
+          }
+        } catch {
+          // not JSON; fall through to text detection
+        }
+        const detected = detectSemver(`${stdout}\n${stderr}`);
+        if (detected) return detected;
       } catch {
         continue;
       }

@@ -82,7 +82,7 @@ function mockExecFileError(message: string): void {
  * runJson() calls don't try to fetch the version. We use a version well
  * above any plausible minSupportedVersion so compat passes regardless.
  */
-async function setupRunnerWithCompat(version = "0.55.0"): Promise<BeadsCommandRunner> {
+async function setupRunnerWithCompat(version = "0.2.19"): Promise<BeadsCommandRunner> {
   const runner = makeRunner();
   mockExecFileOnce(JSON.stringify({ version, branch: "master", commit: "abc" }));
   await runner.checkCompatibility();
@@ -224,5 +224,56 @@ describe("BeadsCommandRunner.getChangeToken", () => {
     const runner = makeRunner();
     const token = await runner.getChangeToken();
     expect(token).toBeNull();
+  });
+});
+
+describe("BeadsCommandRunner.checkCompatibility", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("passes for br version 0.2.19 (above min 0.2.10)", async () => {
+    const runner = makeRunner();
+    mockExecFileOnce(
+      JSON.stringify({
+        version: "0.2.19",
+        build: "release",
+        commit: "abc",
+        branch: "master",
+      })
+    );
+
+    const compat = await runner.checkCompatibility();
+    expect(compat.supported).toBe(true);
+    expect(compat.detectedVersion).toBe("0.2.19");
+    expect(compat.minimumVersion).toBe("0.2.10");
+  });
+
+  it("rejects br version 0.2.5 (below min 0.2.10)", async () => {
+    const runner = makeRunner();
+    mockExecFileOnce(
+      JSON.stringify({
+        version: "0.2.5",
+        build: "release",
+        commit: "abc",
+        branch: "master",
+      })
+    );
+
+    const compat = await runner.checkCompatibility();
+    expect(compat.supported).toBe(false);
+    expect(compat.detectedVersion).toBe("0.2.5");
+  });
+
+  it("fails gracefully when br is not on PATH", async () => {
+    // All three attempts in getBrVersion fail; no version detected.
+    mockExecFileError("spawn br ENOENT");
+    mockExecFileError("spawn br ENOENT");
+    mockExecFileError("spawn br ENOENT");
+    const runner = makeRunner();
+
+    const compat = await runner.checkCompatibility();
+    expect(compat.supported).toBe(false);
+    expect(compat.message).toMatch(/br/); // mention br, not bd
   });
 });
