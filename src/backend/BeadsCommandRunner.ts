@@ -39,7 +39,7 @@ function toStringArray(values?: string[]): string[] {
 }
 
 export class BeadsCommandRunner implements BeadsBackend {
-  private readonly bdPath: string;
+  private readonly cliPath: string;
   private readonly cwd: string;
   private readonly beadsDir: string;
   private readonly log: Logger;
@@ -49,13 +49,13 @@ export class BeadsCommandRunner implements BeadsBackend {
   private readonly recentJsonCache = new Map<string, { expiresAt: number; value: unknown }>();
 
   constructor(params: {
-    bdPath: string;
+    cliPath: string;
     cwd: string;
     beadsDir: string;
     log: Logger;
     minSupportedVersion?: string;
   }) {
-    this.bdPath = params.bdPath;
+    this.cliPath = params.cliPath;
     this.cwd = params.cwd;
     this.beadsDir = params.beadsDir;
     this.log = params.log.child("CLIBackend");
@@ -207,12 +207,12 @@ export class BeadsCommandRunner implements BeadsBackend {
     await this.runJson(cmdArgs);
   }
 
-  private async execBd(args: string[], maxBuffer: number): Promise<{ stdout: string; stderr: string }> {
-    const commandLabel = [this.bdPath, ...args].join(" ");
+  private async execCli(args: string[], maxBuffer: number): Promise<{ stdout: string; stderr: string }> {
+    const commandLabel = [this.cliPath, ...args].join(" ");
     this.log.debug(`Running: ${commandLabel} (cwd=${this.cwd}, BEADS_DIR=${this.beadsDir})`);
 
     const startedAt = Date.now();
-    const result = await execFileAsync(this.bdPath, args, {
+    const result = await execFileAsync(this.cliPath, args, {
       cwd: this.cwd,
       env: {
         ...process.env,
@@ -243,7 +243,7 @@ export class BeadsCommandRunner implements BeadsBackend {
     }
 
     try {
-      const { stdout } = await this.execBd(args, 10 * 1024 * 1024);
+      const { stdout } = await this.execCli(args, 10 * 1024 * 1024);
       const trimmed = stdout.trim();
       if (!trimmed) return [];
       return JSON.parse(trimmed);
@@ -316,7 +316,7 @@ export class BeadsCommandRunner implements BeadsBackend {
     }
 
     try {
-      const { stdout, stderr } = await this.execBd(args, 10 * 1024 * 1024);
+      const { stdout, stderr } = await this.execCli(args, 10 * 1024 * 1024);
       const output = [stdout.trim(), stderr.trim()].filter(Boolean).join("\n").trim();
       return output;
     } catch (error) {
@@ -346,16 +346,16 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   private async computeCompatibility(): Promise<BackendCompatibility> {
-    const version = await this.getBdVersion();
+    const version = await this.getBrVersion();
     if (!version) {
       return {
         supported: false,
         minimumVersion: this.minSupportedVersion,
-        message: `Unable to detect bd version at '${this.bdPath}'.`,
+        message: `Unable to detect br version at '${this.cliPath}'.`,
       };
     }
 
-    this.log.debug(`Using bd ${version} from ${this.bdPath}`);
+    this.log.debug(`Using br ${version} from ${this.cliPath}`);
 
     if (compareSemver(version, this.minSupportedVersion) < 0) {
       return {
@@ -374,11 +374,11 @@ export class BeadsCommandRunner implements BeadsBackend {
     };
   }
 
-  private async getBdVersion(): Promise<string | undefined> {
+  private async getBrVersion(): Promise<string | undefined> {
     const attempts: string[][] = [["version"], ["--version"]];
     for (const args of attempts) {
       try {
-        const { stdout, stderr } = await this.execBd(args, 1024 * 1024);
+        const { stdout, stderr } = await this.execCli(args, 1024 * 1024);
         const version = detectSemver(`${stdout}\n${stderr}`);
         if (version) return version;
       } catch {

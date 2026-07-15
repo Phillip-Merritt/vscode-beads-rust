@@ -25,11 +25,11 @@ describe("resolveCliPath", () => {
 
   it("returns default when neither env nor config is set", () => {
     delete process.env.BEADS_CLI;
-    expect(resolveCliPath(undefined)).toBe("bd"); // Task 2 will change this to "br"
+    expect(resolveCliPath(undefined)).toBe("br");
   });
 
   it("returns default when config is empty string", () => {
     delete process.env.BEADS_CLI;
-    expect(resolveCliPath("")).toBe("bd");
+    expect(resolveCliPath("")).toBe("br");
   });
 });

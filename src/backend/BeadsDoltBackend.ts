@@ -37,7 +37,7 @@ type SqlRow = Record<string, unknown>;
 
 export class BeadsDoltBackend implements BeadsBackend {
   private readonly cli: BeadsCommandRunner;
-  private readonly bdPath: string;
+  private readonly cliPath: string;
   private readonly cwd: string;
   private readonly beadsDir: string;
   private readonly log: Logger;
@@ -47,13 +47,13 @@ export class BeadsDoltBackend implements BeadsBackend {
   private poolPromise: Promise<mysql.Pool> | null = null;
 
   constructor(params: {
-    bdPath: string;
+    cliPath: string;
     cwd: string;
     beadsDir: string;
     log: Logger;
     minSupportedVersion?: string;
   }) {
-    this.bdPath = params.bdPath;
+    this.cliPath = params.cliPath;
     this.cwd = params.cwd;
     this.beadsDir = params.beadsDir;
     this.log = params.log.child("DoltBackend");
@@ -468,7 +468,7 @@ export class BeadsDoltBackend implements BeadsBackend {
   }
 
   private async execBdText(args: string[]): Promise<string> {
-    const { stdout, stderr } = await execFileAsync(this.bdPath, args, {
+    const { stdout, stderr } = await execFileAsync(this.cliPath, args, {
       cwd: this.cwd,
       env: {
         ...process.env,
@@ -481,7 +481,7 @@ export class BeadsDoltBackend implements BeadsBackend {
 
   private async execBdJson<T>(args: string[]): Promise<T> {
     try {
-      const { stdout, stderr } = await execFileAsync(this.bdPath, args, {
+      const { stdout, stderr } = await execFileAsync(this.cliPath, args, {
         cwd: this.cwd,
         env: {
           ...process.env,

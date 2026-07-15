@@ -5,7 +5,7 @@
  * Empty strings are treated as "not set" so a misconfigured setting
  * doesn't silently override the env or default.
  */
-export const DEFAULT_CLI = "bd";
+export const DEFAULT_CLI = "br";
 
 export function resolveCliPath(configured: string | undefined): string {
   const fromEnv = process.env.BEADS_CLI;

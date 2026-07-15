@@ -34,7 +34,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const config = vscode.workspace.getConfiguration("beads");
   const configuredProjects = config.get<string[]>("projects", []);
   const workspaceFolders = (vscode.workspace.workspaceFolders ?? []).map((f) => f.uri.fsPath);
-  log.debug(`config.pathToBd=${config.get<string>("pathToBd", "bd")}`);
+  log.debug(`config.cliPath=${config.get<string>("cliPath", "br")}`);
   log.debug(`config.projects=${configuredProjects.length > 0 ? configuredProjects.join(",") : "<none>"}`);
   log.debug(`config.refreshInterval=${config.get<number>("refreshInterval", 3000)}`);
   log.debug(`config.renderMarkdown=${config.get<boolean>("renderMarkdown", true)}`);

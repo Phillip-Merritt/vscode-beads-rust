@@ -8,6 +8,7 @@ import { Logger } from "../utils/logger";
 import { resolveEnvVariables } from "../utils/resolve-env-variables";
 import { BeadsBackend } from "./BeadsBackend";
 import { BeadsDoltBackend } from "./BeadsDoltBackend";
+import { resolveCliPath } from "./resolve-cli-path";
 import { BeadsProject } from "./types";
 
 const ACTIVE_PROJECT_KEY = "beads.activeProjectId";
@@ -262,8 +263,8 @@ export class BeadsProjectManager implements vscode.Disposable {
     rootPath: string,
     explicitBeadsDir?: string
   ): Promise<{ beadsDir: string } | null> {
-    const bdPath = this.getBdPath();
-    const commandLabel = `${bdPath} where`;
+    const cliPath = this.getCliPath();
+    const commandLabel = `${cliPath} where`;
 
     try {
       const env = {
@@ -276,7 +277,7 @@ export class BeadsProjectManager implements vscode.Disposable {
       );
       const startedAt = Date.now();
 
-      const { stdout } = await execFileAsync(bdPath, ["where"], {
+      const { stdout } = await execFileAsync(cliPath, ["where"], {
         cwd: rootPath,
         env,
         maxBuffer: 1024 * 1024,
@@ -387,10 +388,10 @@ export class BeadsProjectManager implements vscode.Disposable {
       await this.context.workspaceState.update(ACTIVE_PROJECT_KEY, project.id);
     }
 
-    const bdPath = this.getBdPath();
+    const cliPath = this.getCliPath();
 
     this.backend = new BeadsDoltBackend({
-      bdPath,
+      cliPath,
       cwd: project.rootPath,
       beadsDir: project.beadsDir,
       log: this.log,
@@ -421,27 +422,25 @@ export class BeadsProjectManager implements vscode.Disposable {
     }
   }
 
-  private resolveBdPath(configuredPath: string): string {
-    const raw = configuredPath || "bd";
+  private resolveCliPathFromConfig(raw: string): string {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-
-    const resolvedPath = workspaceRoot && !path.isAbsolute(raw) ? path.resolve(workspaceRoot, raw) : raw;
-
-    if (resolvedPath !== raw && fs.existsSync(resolvedPath)) {
-      return resolvedPath;
+    const resolved = workspaceRoot && !path.isAbsolute(raw) ? path.resolve(workspaceRoot, raw) : raw;
+    if (resolved !== raw && fs.existsSync(resolved)) {
+      return resolved;
     }
-
-    if (path.isAbsolute(raw) || raw === "bd") {
-      return raw;
-    }
-
-    return fs.existsSync(raw) ? raw : "bd";
+    return raw;
   }
 
-  private getBdPath(): string {
+  private getCliPath(): string {
+    // BEADS_CLI env beats beads.cliPath config (see resolveCliPath for the
+    // full precedence chain). After resolving the canonical value, apply
+    // workspace-relative path resolution so users can point at a binary in
+    // their repo root.
     const config = vscode.workspace.getConfiguration("beads");
-    const configuredBdPath = config.get<string>("pathToBd", "bd") ?? "bd";
-    return this.resolveBdPath(resolveEnvVariables(configuredBdPath).trim());
+    const configuredCliPath = config.get<string>("cliPath", "br") ?? "br";
+    const canonical = resolveCliPath(configuredCliPath);
+    const resolvedConfig = resolveEnvVariables(canonical).trim();
+    return this.resolveCliPathFromConfig(resolvedConfig);
   }
 
   private isNotInitializedError(error: unknown): boolean {
