@@ -1,4 +1,5 @@
 import * as childProcess from "child_process";
+import * as fs from "fs";
 import { BeadsCommandRunner } from "../BeadsCommandRunner";
 import { Logger } from "../../utils/logger";
 
@@ -19,6 +20,8 @@ jest.mock("child_process", () => {
   });
   return { execFile: fn };
 });
+
+jest.mock("fs");
 
 function makeLogger(): Logger {
   return {
@@ -167,5 +170,59 @@ describe("BeadsCommandRunner.addComment", () => {
     expect(args).toEqual(["comments", "add", "br-1", "hello", "--json"]);
     expect(args).not.toContain("--actor");
     expect(args).not.toContain("--author");
+  });
+});
+
+describe("BeadsCommandRunner.getChangeToken", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns mtimeMs as a string", async () => {
+    const stat = fs.stat as unknown as jest.Mock;
+    stat.mockImplementationOnce(
+      (
+        _path: string,
+        callback: (err: Error | null, stats: { mtimeMs: number }) => void
+      ) => {
+        callback(null, { mtimeMs: 1737038400000 });
+      }
+    );
+    const runner = makeRunner();
+    const token = await runner.getChangeToken();
+    expect(token).toBe("1737038400000");
+  });
+
+  it("queries the issues.jsonl path under beadsDir", async () => {
+    const stat = fs.stat as unknown as jest.Mock;
+    stat.mockImplementationOnce(
+      (
+        _path: string,
+        callback: (err: Error | null, stats: { mtimeMs: number }) => void
+      ) => {
+        callback(null, { mtimeMs: 1 });
+      }
+    );
+    const runner = makeRunner();
+    await runner.getChangeToken();
+    expect(stat).toHaveBeenCalledWith(
+      expect.stringMatching(/issues\.jsonl$/),
+      expect.anything()
+    );
+  });
+
+  it("returns null when the file does not exist", async () => {
+    const stat = fs.stat as unknown as jest.Mock;
+    stat.mockImplementationOnce(
+      (
+        _path: string,
+        callback: (err: Error | null, stats?: { mtimeMs: number }) => void
+      ) => {
+        callback(new Error("ENOENT"));
+      }
+    );
+    const runner = makeRunner();
+    const token = await runner.getChangeToken();
+    expect(token).toBeNull();
   });
 });

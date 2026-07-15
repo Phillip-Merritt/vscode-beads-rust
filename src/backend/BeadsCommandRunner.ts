@@ -1,4 +1,6 @@
 import { execFile } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 import * as util from "util";
 import { Logger } from "../utils/logger";
 import {
@@ -94,7 +96,16 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   async getChangeToken(): Promise<string | null> {
-    return null;
+    const jsonlPath = path.join(this.beadsDir, "issues.jsonl");
+    return new Promise((resolve) => {
+      fs.stat(jsonlPath, (err, stats) => {
+        if (err || !stats) {
+          resolve(null);
+          return;
+        }
+        resolve(String(stats.mtimeMs));
+      });
+    });
   }
 
   async show(id: string): Promise<BeadsIssue | null> {
