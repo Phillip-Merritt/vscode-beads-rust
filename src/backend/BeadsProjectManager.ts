@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import { Logger } from "../utils/logger";
 import { resolveEnvVariables } from "../utils/resolve-env-variables";
 import { BeadsBackend } from "./BeadsBackend";
-import { BeadsDoltBackend } from "./BeadsDoltBackend";
+import { BeadsCommandRunner } from "./BeadsCommandRunner";
 import { resolveCliPath } from "./resolve-cli-path";
 import { BeadsProject } from "./types";
 
@@ -169,7 +169,7 @@ export class BeadsProjectManager implements vscode.Disposable {
       if (this.isNotInitializedError(error)) {
         return {
           state: "not_initialized",
-          message: "Beads project is not initialized. Run `bd init` in this project. See Output > Beads for details.",
+          message: "Beads project is not initialized. Run `br init` in this project. See Output > Beads for details.",
         };
       }
 
@@ -196,7 +196,7 @@ export class BeadsProjectManager implements vscode.Disposable {
 
   async showProjectPicker(): Promise<BeadsProject | undefined> {
     if (this.projects.length === 0) {
-      vscode.window.showWarningMessage("No Beads projects found. Initialize a project with `bd init` first.");
+      vscode.window.showWarningMessage("No Beads projects found. Initialize a project with `br init` first.");
       return undefined;
     }
 
@@ -336,22 +336,22 @@ export class BeadsProjectManager implements vscode.Disposable {
     );
     if (intervalMs === 0) return;
 
-    this.log.debug(`Watching Dolt changes for ${project.name} every ${intervalMs}ms`);
+    this.log.debug(`Watching beads changes for ${project.name} every ${intervalMs}ms`);
 
     const poll = async () => {
       if (this.activeProject?.id !== project.id || this.backend !== backend) return;
       try {
-        this.log.trace(`Polling Dolt change token for ${project.name}`);
+        this.log.trace(`Polling change token for ${project.name}`);
         const token = await backend.getChangeToken();
         if (!token) return;
         if (this.activePollToken === null) {
           this.activePollToken = token;
-          this.log.debug(`Initialized Dolt change token for ${project.name}`);
+          this.log.debug(`Initialized change token for ${project.name}`);
           return;
         }
         if (token !== this.activePollToken) {
           this.activePollToken = token;
-          this.log.debug(`Detected Dolt change for ${project.name}`);
+          this.log.debug(`Detected change for ${project.name}`);
           this._onDataChanged.fire();
         }
       } catch (error) {
@@ -390,12 +390,13 @@ export class BeadsProjectManager implements vscode.Disposable {
 
     const cliPath = this.getCliPath();
 
-    this.backend = new BeadsDoltBackend({
+    this.backend = new BeadsCommandRunner({
       cliPath,
       cwd: project.rootPath,
       beadsDir: project.beadsDir,
       log: this.log,
-      minSupportedVersion: "0.51.0",
+      // minSupportedVersion omitted: defaults to "0.2.10" after Task 7. For now,
+      // runner default is still "0.51.0"; Task 7 changes the runner default too.
     });
 
     project.backendStatus = "unknown";
