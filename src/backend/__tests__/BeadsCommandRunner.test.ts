@@ -274,6 +274,6 @@ describe("BeadsCommandRunner.checkCompatibility", () => {
 
     const compat = await runner.checkCompatibility();
     expect(compat.supported).toBe(false);
-    expect(compat.message).toMatch(/br/); // mention br, not bd
+    expect(compat.message).toMatch(/br/); // error mentions the configured binary name
   });
 });
