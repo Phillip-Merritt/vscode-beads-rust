@@ -137,3 +137,35 @@ describe("BeadsCommandRunner.list", () => {
     expect(listArgs).toEqual(["list", "--json", "--limit", "500"]);
   });
 });
+
+describe("BeadsCommandRunner.addComment", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("passes --actor (not --author) when actor is provided", async () => {
+    const runner = await setupRunnerWithCompat();
+    mockExecFileOnce(""); // br comments add returns empty stdout on success
+
+    await runner.addComment({ id: "br-1", text: "hello", actor: "alice" });
+
+    const execFile = childProcess.execFile as unknown as jest.Mock;
+    expect(execFile).toHaveBeenCalledTimes(2);
+    const [, args] = execFile.mock.calls[1];
+    expect(args).toEqual(["comments", "add", "br-1", "hello", "--json", "--actor", "alice"]);
+    expect(args).not.toContain("--author");
+  });
+
+  it("omits --actor entirely when actor is not provided", async () => {
+    const runner = await setupRunnerWithCompat();
+    mockExecFileOnce("");
+
+    await runner.addComment({ id: "br-1", text: "hello" });
+
+    const execFile = childProcess.execFile as unknown as jest.Mock;
+    const [, args] = execFile.mock.calls[1];
+    expect(args).toEqual(["comments", "add", "br-1", "hello", "--json"]);
+    expect(args).not.toContain("--actor");
+    expect(args).not.toContain("--author");
+  });
+});

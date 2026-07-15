@@ -195,7 +195,7 @@ export class BeadsCommandRunner implements BeadsBackend {
 
   async addComment(args: AddCommentArgs): Promise<void> {
     const cmdArgs = ["comments", "add", args.id, args.text, "--json"];
-    if (args.author) cmdArgs.push("--author", args.author);
+    if (args.actor) cmdArgs.push("--actor", args.actor);
     await this.runJson(cmdArgs);
   }
 

@@ -66,7 +66,7 @@ export interface DependencyArgs {
 
 export interface AddCommentArgs {
   id: string;
-  author?: string;
+  actor?: string;
   text: string;
 }
 
