@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Switch backend from `bd` (upstream Go CLI) to `br` (Rust port). The
+  extension now spawns `br` instead of `bd`; the configured binary
+  defaults to `br` and can be overridden via the `beads.cliPath`
+  setting or the `BEADS_CLI` environment variable. Existing
+  `beads.pathToBd` settings are no longer honoured.
+
 ### Fixed
 
 - `beads.userId` and `beads.pathToBd` now expand `${env:VAR}` placeholders (#60)

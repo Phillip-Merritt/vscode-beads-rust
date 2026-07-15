@@ -214,10 +214,10 @@ export class BeadDetailsViewProvider extends BaseViewProvider {
       case "addComment":
         try {
           // Get username from environment or default
-          const author = process.env.USER || process.env.USERNAME || "vscode";
+          const actor = process.env.USER || process.env.USERNAME || "vscode";
           await client.addComment({
             id: message.beadId,
-            author,
+            actor,
             text: message.text,
           });
           // Refresh to show new comment

@@ -7,7 +7,8 @@ import * as vscode from "vscode";
 import { Logger } from "../utils/logger";
 import { resolveEnvVariables } from "../utils/resolve-env-variables";
 import { BeadsBackend } from "./BeadsBackend";
-import { BeadsDoltBackend } from "./BeadsDoltBackend";
+import { BeadsCommandRunner } from "./BeadsCommandRunner";
+import { resolveCliPath } from "./resolve-cli-path";
 import { BeadsProject } from "./types";
 
 const ACTIVE_PROJECT_KEY = "beads.activeProjectId";
@@ -168,7 +169,7 @@ export class BeadsProjectManager implements vscode.Disposable {
       if (this.isNotInitializedError(error)) {
         return {
           state: "not_initialized",
-          message: "Beads project is not initialized. Run `bd init` in this project. See Output > Beads for details.",
+          message: "Beads project is not initialized. Run `br init` in this project. See Output > Beads for details.",
         };
       }
 
@@ -195,7 +196,7 @@ export class BeadsProjectManager implements vscode.Disposable {
 
   async showProjectPicker(): Promise<BeadsProject | undefined> {
     if (this.projects.length === 0) {
-      vscode.window.showWarningMessage("No Beads projects found. Initialize a project with `bd init` first.");
+      vscode.window.showWarningMessage("No Beads projects found. Initialize a project with `br init` first.");
       return undefined;
     }
 
@@ -262,8 +263,8 @@ export class BeadsProjectManager implements vscode.Disposable {
     rootPath: string,
     explicitBeadsDir?: string
   ): Promise<{ beadsDir: string } | null> {
-    const bdPath = this.getBdPath();
-    const commandLabel = `${bdPath} where`;
+    const cliPath = this.getCliPath();
+    const commandLabel = `${cliPath} where`;
 
     try {
       const env = {
@@ -276,7 +277,7 @@ export class BeadsProjectManager implements vscode.Disposable {
       );
       const startedAt = Date.now();
 
-      const { stdout } = await execFileAsync(bdPath, ["where"], {
+      const { stdout } = await execFileAsync(cliPath, ["where"], {
         cwd: rootPath,
         env,
         maxBuffer: 1024 * 1024,
@@ -335,22 +336,22 @@ export class BeadsProjectManager implements vscode.Disposable {
     );
     if (intervalMs === 0) return;
 
-    this.log.debug(`Watching Dolt changes for ${project.name} every ${intervalMs}ms`);
+    this.log.debug(`Watching beads changes for ${project.name} every ${intervalMs}ms`);
 
     const poll = async () => {
       if (this.activeProject?.id !== project.id || this.backend !== backend) return;
       try {
-        this.log.trace(`Polling Dolt change token for ${project.name}`);
+        this.log.trace(`Polling change token for ${project.name}`);
         const token = await backend.getChangeToken();
         if (!token) return;
         if (this.activePollToken === null) {
           this.activePollToken = token;
-          this.log.debug(`Initialized Dolt change token for ${project.name}`);
+          this.log.debug(`Initialized change token for ${project.name}`);
           return;
         }
         if (token !== this.activePollToken) {
           this.activePollToken = token;
-          this.log.debug(`Detected Dolt change for ${project.name}`);
+          this.log.debug(`Detected change for ${project.name}`);
           this._onDataChanged.fire();
         }
       } catch (error) {
@@ -387,14 +388,15 @@ export class BeadsProjectManager implements vscode.Disposable {
       await this.context.workspaceState.update(ACTIVE_PROJECT_KEY, project.id);
     }
 
-    const bdPath = this.getBdPath();
+    const cliPath = this.getCliPath();
 
-    this.backend = new BeadsDoltBackend({
-      bdPath,
+    this.backend = new BeadsCommandRunner({
+      cliPath,
       cwd: project.rootPath,
       beadsDir: project.beadsDir,
       log: this.log,
-      minSupportedVersion: "0.51.0",
+      // minSupportedVersion omitted: defaults to "0.2.10" after Task 7. For now,
+      // runner default is still "0.51.0"; Task 7 changes the runner default too.
     });
 
     project.backendStatus = "unknown";
@@ -421,27 +423,25 @@ export class BeadsProjectManager implements vscode.Disposable {
     }
   }
 
-  private resolveBdPath(configuredPath: string): string {
-    const raw = configuredPath || "bd";
+  private resolveCliPathFromConfig(raw: string): string {
     const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-
-    const resolvedPath = workspaceRoot && !path.isAbsolute(raw) ? path.resolve(workspaceRoot, raw) : raw;
-
-    if (resolvedPath !== raw && fs.existsSync(resolvedPath)) {
-      return resolvedPath;
+    const resolved = workspaceRoot && !path.isAbsolute(raw) ? path.resolve(workspaceRoot, raw) : raw;
+    if (resolved !== raw && fs.existsSync(resolved)) {
+      return resolved;
     }
-
-    if (path.isAbsolute(raw) || raw === "bd") {
-      return raw;
-    }
-
-    return fs.existsSync(raw) ? raw : "bd";
+    return raw;
   }
 
-  private getBdPath(): string {
+  private getCliPath(): string {
+    // BEADS_CLI env beats beads.cliPath config (see resolveCliPath for the
+    // full precedence chain). After resolving the canonical value, apply
+    // workspace-relative path resolution so users can point at a binary in
+    // their repo root.
     const config = vscode.workspace.getConfiguration("beads");
-    const configuredBdPath = config.get<string>("pathToBd", "bd") ?? "bd";
-    return this.resolveBdPath(resolveEnvVariables(configuredBdPath).trim());
+    const configuredCliPath = config.get<string>("cliPath", "br") ?? "br";
+    const canonical = resolveCliPath(configuredCliPath);
+    const resolvedConfig = resolveEnvVariables(canonical).trim();
+    return this.resolveCliPathFromConfig(resolvedConfig);
   }
 
   private isNotInitializedError(error: unknown): boolean {

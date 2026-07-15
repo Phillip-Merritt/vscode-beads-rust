@@ -1,7 +1,7 @@
 /**
  * Beads - TypeScript Data Models
  *
- * These types mirror the Beads issue schema as exposed by `bd list --json` and `bd show --json`.
+ * These types mirror the Beads issue schema as exposed by `br list --json` and `br show --json`.
  * The extension normalizes CLI output into these internal types.
  *
  * Status Mapping (beads canonical statuses):
@@ -42,7 +42,7 @@ export const STATUS_LABELS: Record<BeadStatus, string> = {
 
 // Core Bead interface representing a single issue
 export interface Bead {
-  id: string; // e.g., "bd-a1b2", including dotted child IDs
+  id: string; // e.g., "br-a1b2", including dotted child IDs
   title: string;
   description?: string;
   design?: string; // Design notes
@@ -114,7 +114,7 @@ export interface BeadsProject {
   backendPid?: number;
 }
 
-// Result from `bd info --json`
+// Result from `br info --json`
 export interface BeadsInfo {
   version?: string;
   database?: string;
@@ -176,10 +176,6 @@ export type WebviewToExtensionMessage =
   | { type: "refresh" }
   | { type: "selectProject"; projectId: string; projectRootPath?: string }
   | { type: "showProjectMenu"; projectId: string }
-  | { type: "showDoltStatus" }
-  | { type: "startDoltServer" }
-  | { type: "stopDoltServer" }
-  | { type: "openDoltLog" }
   | { type: "openProjectFolder" }
   | { type: "selectBead"; beadId: string }
   | { type: "updateBead"; beadId: string; updates: Partial<Bead> }

@@ -1,4 +1,6 @@
 import { execFile } from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 import * as util from "util";
 import { Logger } from "../utils/logger";
 import {
@@ -39,7 +41,7 @@ function toStringArray(values?: string[]): string[] {
 }
 
 export class BeadsCommandRunner implements BeadsBackend {
-  private readonly bdPath: string;
+  private readonly cliPath: string;
   private readonly cwd: string;
   private readonly beadsDir: string;
   private readonly log: Logger;
@@ -49,17 +51,17 @@ export class BeadsCommandRunner implements BeadsBackend {
   private readonly recentJsonCache = new Map<string, { expiresAt: number; value: unknown }>();
 
   constructor(params: {
-    bdPath: string;
+    cliPath: string;
     cwd: string;
     beadsDir: string;
     log: Logger;
     minSupportedVersion?: string;
   }) {
-    this.bdPath = params.bdPath;
+    this.cliPath = params.cliPath;
     this.cwd = params.cwd;
     this.beadsDir = params.beadsDir;
     this.log = params.log.child("CLIBackend");
-    this.minSupportedVersion = params.minSupportedVersion ?? "0.51.0";
+    this.minSupportedVersion = params.minSupportedVersion ?? "0.2.10";
   }
 
   async dispose(): Promise<void> {
@@ -77,8 +79,12 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   async list(): Promise<BeadsIssue[]> {
-    const result = await this.runReadJson(["list", "--json"], { cacheTtlMs: 750 });
-    return Array.isArray(result) ? (result as BeadsIssue[]) : [];
+    const result = await this.runReadJson(["list", "--json", "--limit", "500"], { cacheTtlMs: 750 });
+    if (Array.isArray(result)) return result as BeadsIssue[];
+    if (result && typeof result === "object" && Array.isArray((result as { issues?: unknown }).issues)) {
+      return (result as { issues: BeadsIssue[] }).issues;
+    }
+    return [];
   }
 
   async info(): Promise<Record<string, unknown>> {
@@ -90,19 +96,16 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   async getChangeToken(): Promise<string | null> {
-    return null;
-  }
-
-  async doltStatus(): Promise<string> {
-    return this.runText(["dolt", "status"]);
-  }
-
-  async startDoltServer(): Promise<string> {
-    return this.runText(["dolt", "start"]);
-  }
-
-  async stopDoltServer(): Promise<string> {
-    return this.runText(["dolt", "stop"]);
+    const jsonlPath = path.join(this.beadsDir, "issues.jsonl");
+    return new Promise((resolve) => {
+      fs.stat(jsonlPath, (err, stats) => {
+        if (err || !stats) {
+          resolve(null);
+          return;
+        }
+        resolve(String(stats.mtimeMs));
+      });
+    });
   }
 
   async show(id: string): Promise<BeadsIssue | null> {
@@ -203,16 +206,16 @@ export class BeadsCommandRunner implements BeadsBackend {
 
   async addComment(args: AddCommentArgs): Promise<void> {
     const cmdArgs = ["comments", "add", args.id, args.text, "--json"];
-    if (args.author) cmdArgs.push("--author", args.author);
+    if (args.actor) cmdArgs.push("--actor", args.actor);
     await this.runJson(cmdArgs);
   }
 
-  private async execBd(args: string[], maxBuffer: number): Promise<{ stdout: string; stderr: string }> {
-    const commandLabel = [this.bdPath, ...args].join(" ");
+  private async execCli(args: string[], maxBuffer: number): Promise<{ stdout: string; stderr: string }> {
+    const commandLabel = [this.cliPath, ...args].join(" ");
     this.log.debug(`Running: ${commandLabel} (cwd=${this.cwd}, BEADS_DIR=${this.beadsDir})`);
 
     const startedAt = Date.now();
-    const result = await execFileAsync(this.bdPath, args, {
+    const result = await execFileAsync(this.cliPath, args, {
       cwd: this.cwd,
       env: {
         ...process.env,
@@ -236,14 +239,14 @@ export class BeadsCommandRunner implements BeadsBackend {
     };
   }
 
-  private async runJson(args: string[], recoveryAttempted = false): Promise<unknown> {
+  private async runJson(args: string[]): Promise<unknown> {
     const compatibility = await this.checkCompatibility();
     if (!compatibility.supported) {
       throw new Error(compatibility.message);
     }
 
     try {
-      const { stdout } = await this.execBd(args, 10 * 1024 * 1024);
+      const { stdout } = await this.execCli(args, 10 * 1024 * 1024);
       const trimmed = stdout.trim();
       if (!trimmed) return [];
       return JSON.parse(trimmed);
@@ -252,23 +255,10 @@ export class BeadsCommandRunner implements BeadsBackend {
       const stderr = err.stderr?.trim() ?? "";
       const stdout = err.stdout?.trim() ?? "";
       const rawMessage = stderr || stdout || err.message;
-      this.log.trace(`bd command failed: ${args.join(" ")} :: ${rawMessage}`);
-
-      if (this.isDoltConnectionError(rawMessage)) {
-        if (!recoveryAttempted) {
-          const recovered = await this.tryRecoverDolt(rawMessage);
-          if (recovered) {
-            return this.runJson(args, true);
-          }
-        }
-
-        throw new Error(
-          "Beads cannot connect to the Dolt server for this project. Run `bd dolt start` and retry. See Output > Beads for details."
-        );
-      }
+      this.log.trace(`br command failed: ${args.join(" ")} :: ${rawMessage}`);
 
       if (this.isProjectNotInitializedError(rawMessage)) {
-        throw new Error("Beads project is not initialized. Run `bd init` in this project. See Output > Beads for details.");
+        throw new Error("Beads project is not initialized. Run `br init` in this project. See Output > Beads for details.");
       }
 
       throw new Error(rawMessage);
@@ -316,13 +306,13 @@ export class BeadsCommandRunner implements BeadsBackend {
     }
 
     try {
-      const { stdout, stderr } = await this.execBd(args, 10 * 1024 * 1024);
+      const { stdout, stderr } = await this.execCli(args, 10 * 1024 * 1024);
       const output = [stdout.trim(), stderr.trim()].filter(Boolean).join("\n").trim();
       return output;
     } catch (error) {
       const err = error as Error & { stderr?: string; stdout?: string };
       if ((err as NodeJS.ErrnoException).code === "ETIMEDOUT") {
-        throw new Error(`bd command timed out after ${BD_COMMAND_TIMEOUT_MS}ms: ${args.join(" ")}`);
+        throw new Error(`br command timed out after ${BD_COMMAND_TIMEOUT_MS}ms: ${args.join(" ")}`);
       }
       const stderr = err.stderr?.trim() ?? "";
       const stdout = err.stdout?.trim() ?? "";
@@ -331,38 +321,27 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   private async runInfo(): Promise<Record<string, unknown>> {
-    try {
-      return (await this.runJson(["info", "--json"])) as Record<string, unknown>;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      if (!this.looksLikePlainInfoOutput(message)) {
-        throw error;
-      }
-
-      this.log.debug("Falling back to plain `bd info` output parsing");
-      const output = await this.runText(["info"]);
-      return this.parsePlainInfo(output);
-    }
+    return (await this.runJson(["info", "--json"])) as Record<string, unknown>;
   }
 
   private async computeCompatibility(): Promise<BackendCompatibility> {
-    const version = await this.getBdVersion();
+    const version = await this.getBrVersion();
     if (!version) {
       return {
         supported: false,
         minimumVersion: this.minSupportedVersion,
-        message: `Unable to detect bd version at '${this.bdPath}'.`,
+        message: `Unable to detect br version at '${this.cliPath}'.`,
       };
     }
 
-    this.log.debug(`Using bd ${version} from ${this.bdPath}`);
+    this.log.debug(`Using br ${version} from ${this.cliPath}`);
 
     if (compareSemver(version, this.minSupportedVersion) < 0) {
       return {
         supported: false,
         detectedVersion: version,
         minimumVersion: this.minSupportedVersion,
-        message: `Unsupported bd version ${version}. Requires >= ${this.minSupportedVersion}.`,
+        message: `Unsupported br version ${version}. Requires >= ${this.minSupportedVersion}.`,
       };
     }
 
@@ -370,47 +349,34 @@ export class BeadsCommandRunner implements BeadsBackend {
       supported: true,
       detectedVersion: version,
       minimumVersion: this.minSupportedVersion,
-      message: `bd ${version} is compatible`,
+      message: `br ${version} is compatible`,
     };
   }
 
-  private async getBdVersion(): Promise<string | undefined> {
-    const attempts: string[][] = [["version"], ["--version"]];
+  private async getBrVersion(): Promise<string | undefined> {
+    // br version --json returns a flat object like {"version":"0.2.19","branch":"master","commit":"...","build":"release",...}.
+    // The bare `br version` text fallback exists for older br builds or systems where --json is stripped.
+    const attempts: string[][] = [["version", "--json"], ["version"], ["--version"]];
     for (const args of attempts) {
       try {
-        const { stdout, stderr } = await this.execBd(args, 1024 * 1024);
-        const version = detectSemver(`${stdout}\n${stderr}`);
-        if (version) return version;
+        const { stdout, stderr } = await this.execCli(args, 1024 * 1024);
+        // Try JSON shape first.
+        try {
+          const parsed = JSON.parse(stdout);
+          if (parsed && typeof parsed === "object" && typeof parsed.version === "string") {
+            const detected = detectSemver(parsed.version);
+            if (detected) return detected;
+          }
+        } catch {
+          // not JSON; fall through to text detection
+        }
+        const detected = detectSemver(`${stdout}\n${stderr}`);
+        if (detected) return detected;
       } catch {
         continue;
       }
     }
     return undefined;
-  }
-
-  private looksLikePlainInfoOutput(message: string): boolean {
-    return message.includes("Beads Database Information") || message.includes("Issue Count:");
-  }
-
-  private parsePlainInfo(output: string): Record<string, unknown> {
-    const info: Record<string, unknown> = {};
-
-    for (const rawLine of output.split(/\r?\n/)) {
-      const line = rawLine.trim();
-      if (!line || line.startsWith("=") || line.startsWith("Warning:") || line.startsWith("Info:")) continue;
-
-      const match = line.match(/^([^:]+):\s+(.+)$/);
-      if (!match) continue;
-
-      const key = match[1].trim().toLowerCase();
-      const value = match[2].trim();
-
-      if (key === "database") info.database = value;
-      if (key === "mode") info.mode = value;
-      if (key === "issue count") info.issue_count = Number.parseInt(value, 10);
-    }
-
-    return info;
   }
 
   private pickSingleIssue(result: unknown, operation: string): BeadsIssue {
@@ -421,7 +387,7 @@ export class BeadsCommandRunner implements BeadsBackend {
     if (result && typeof result === "object" && "id" in (result as Record<string, unknown>)) {
       return result as BeadsIssue;
     }
-    throw new Error(`Unexpected JSON result from bd ${operation}`);
+    throw new Error(`Unexpected JSON result from br ${operation}`);
   }
 
   private isProjectNotInitializedError(message: string): boolean {
@@ -429,41 +395,7 @@ export class BeadsCommandRunner implements BeadsBackend {
     const missingNamedDatabase = normalized.includes('database "') && normalized.includes('" not found');
     return (
       missingNamedDatabase ||
-      normalized.includes("database not found on dolt server") ||
       normalized.includes("has not been initialized")
     );
-  }
-
-  private isDoltConnectionError(message: string): boolean {
-    const normalized = message.toLowerCase();
-    return (
-      normalized.includes("dolt server auto-started but still unreachable") ||
-      normalized.includes("dolt server endpoint changed") ||
-      normalized.includes("connect: connection refused") ||
-      normalized.includes("dolt circuit breaker is open") ||
-      normalized.includes("server appears down") ||
-      normalized.includes("active probe failed")
-    );
-  }
-
-  private async tryRecoverDolt(rawMessage: string): Promise<boolean> {
-    this.log.info(`Attempting Dolt recovery after CLI failure: ${rawMessage}`);
-
-    try {
-      const status = await this.runText(["dolt", "status"]);
-      this.log.debug(`Current Dolt status before recovery: ${status}`);
-    } catch (error) {
-      this.log.debug(`Unable to read Dolt status before recovery: ${error instanceof Error ? error.message : String(error)}`);
-    }
-
-    try {
-      const output = await this.runText(["dolt", "start"]);
-      this.log.info(`Dolt recovery start result: ${output || "<no output>"}`);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return true;
-    } catch (error) {
-      this.log.warn(`Dolt recovery failed: ${error instanceof Error ? error.message : String(error)}`);
-      return false;
-    }
   }
 }
