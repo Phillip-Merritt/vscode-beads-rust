@@ -47,7 +47,7 @@ Read CHANGELOG.md `[Unreleased]` section. Compare commits since last tag.
 - `fix:` that fix bugs users could encounter
 
 **Always skip (never flag):**
-- `docs:`, `ci:`, `test:`, `bd:`, `bd sync:` commits
+- `docs:`, `ci:`, `test:` commits
 - `chore:` commits (deps, formatting, tooling, project config)
 - `feat:` or `fix:` in `.agent/`, `.claude/`, `.opencode/`, `.github/`, `scripts/`, `docs/` (project tooling, not extension)
 - Commits already referenced in changelog (matching bead ID like `vsbeads-xxx`)
@@ -68,6 +68,8 @@ Only proceed after user confirmed version AND changelog is complete.
 
 3. Update package.json version field
 
+> **Before committing**, verify that `package.json#name` is still `vscode-beads-rust` and `package.json#publisher` is still `phillipmerritt`. These identity fields were frozen during the v0.14.0 release prep; they MUST NOT change in this step. If they don't match, STOP and resolve before tagging.
+
 4. Commit: `chore: release vX.Y.Z`
 
 5. Create tag: `vX.Y.Z`
@@ -78,4 +80,4 @@ Only proceed after user confirmed version AND changelog is complete.
    git push origin vX.Y.Z
    ```
 
-7. Report success with link: https://github.com/jdillon/vscode-beads/actions
+7. Report success with link: https://github.com/Phillip-Merritt/vscode-beads-rust/actions
