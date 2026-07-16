@@ -1,9 +1,9 @@
 {
-  "name": "vscode-beads",
-  "displayName": "Beads",
-  "description": "VS Code extension for managing Beads issues",
-  "version": "0.13.0",
-  "publisher": "planet57",
+  "name": "vscode-beads-rust",
+  "displayName": "Beads Rust",
+  "description": "VS Code extension for managing Beads issues against the br (beads_rust) CLI",
+  "version": "0.14.0",
+  "publisher": "phillipmerritt",
   "license": "Apache-2.0",
   "icon": "resources/icon.png",
   "files": [
@@ -15,7 +15,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jdillon/vscode-beads"
+    "url": "https://github.com/Phillip-Merritt/vscode-beads-rust"
+  },
+  "homepage": "https://github.com/Phillip-Merritt/vscode-beads-rust#readme",
+  "bugs": {
+    "url": "https://github.com/Phillip-Merritt/vscode-beads-rust/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
