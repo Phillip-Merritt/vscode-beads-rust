@@ -71,7 +71,7 @@ This extension is a fork of [jdillon/vscode-beads](https://github.com/jdillon/vs
 
 - Forked from [jdillon/vscode-beads](https://github.com/jdillon/vscode-beads) (Apache-2.0). The original UI, status/priority normalization, multi-project discovery, and webview plumbing all originate from that project.
 - Issue-type icons from [Font Awesome Free](https://fontawesome.com) (CC BY 4.0).
-- Beads logo SVG adapted from the upstream extension artwork.
+- Original Beads Rust logo artwork is included in this repository.
 
 ## License
 
