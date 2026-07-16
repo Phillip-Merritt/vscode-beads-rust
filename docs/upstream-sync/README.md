@@ -1,25 +1,24 @@
 # Upstream Beads Sync
 
-Tracks synchronization between vscode-beads and upstream [beads](https://github.com/steveyegge/beads).
+Tracks synchronization between vscode-beads-rust and upstream [`br` / beads_rust](https://github.com/beads-rs/beads-rs).
 
 ## Current Sync Point
 
-**v0.40.0** (64d5f20b)
+Tracking against the [beads-rs/beads-rs](https://github.com/beads-rs/beads-rs) branch used at design time. Run `git -C ../beads_rust fetch && git -C ../beads_rust pull` before each sync review.
 
 ## Sync History
 
-| Date | Version | Summary |
-|------|---------|---------|
-| 2025-12-29 | v0.40.0 | `wisp`→`ephemeral`, `created_by`, `hooked` status, `agent`/`role` types, daemon API fields |
+| Date | Target | Summary |
+|------|--------|---------|
+| 2026-07-16 | beads-rs/beads-rs | v0.14.0 — backend switch to `br` (beads_rust); new package identity, publisher, and repo URL |
+| 2025-12-29 | legacy upstream (see [disclaimer](./2025-12-29-upstream-sync-report.md)) | `wisp`→`ephemeral`, `created_by`, `hooked` status, `agent`/`role` types, daemon API fields — see [historical report](./2025-12-29-upstream-sync-report.md) |
 
-## Reports
+## Pending Updates (post v0.14.0)
 
-- [2025-12-29](2025-12-29-upstream-sync-report.md) - v0.37.0 → v0.40.0
+None tracked at the moment. The previous "Pending Updates" list targeted the legacy backend and has been retired alongside it. (See the [historical report](./2025-12-29-upstream-sync-report.md) for the work that applied to the older CLI.)
 
-## Pending Updates
+## References
 
-- [ ] Add `hooked` status to types.ts
-- [ ] Add `agent`, `role` types with icons
-- [ ] Expand DependencyType union
-- [ ] Update BeadsDaemonClient with new fields (ephemeral, created_by, parent, agent fields)
-- [ ] Update beads-daemon-api.md
+- [beads-rs/beads-rs CLI reference](https://github.com/beads-rs/beads-rs/blob/main/docs/CLI_REFERENCE.md)
+- [beads-rs/beads-rs architecture](https://github.com/beads-rs/beads-rs/blob/main/docs/ARCHITECTURE.md)
+- Local reference repo: `../beads_rust`
