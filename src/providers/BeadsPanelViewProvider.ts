@@ -46,6 +46,11 @@ export class BeadsPanelViewProvider extends BaseViewProvider {
     }
 
     const showLoading = reason === "initial" || reason === "projectChange" || reason === "manualRefresh";
+    // Only `initial` waits for the minimum-loading flicker guard. For
+    // `projectChange` and `manualRefresh` the user has already seen the
+    // previous state, so posting the new data as soon as it lands is
+    // better UX than a 500ms blank window.
+    const applyMinLoading = reason === "initial";
     const loadingStartedAt = showLoading ? Date.now() : 0;
     if (showLoading) {
       this.postMessage({ type: "setBeads", beads: [] });
@@ -55,20 +60,26 @@ export class BeadsPanelViewProvider extends BaseViewProvider {
 
     try {
       const issues = await client.list();
-      if (showLoading) {
+      if (applyMinLoading) {
         await this.waitForMinimumLoading(loadingStartedAt);
       }
       if (thisRequest !== this.loadSequence) {
+        // Stale response: a newer loadData is in flight. We previously
+        // set the loading state and would otherwise leave it stuck. Clear
+        // it now so the webview doesn't sit on the spinner waiting for a
+        // response that will never arrive here.
+        this.setLoading(false);
         return;
       }
       const beads = issues.map(issueToWebviewBead).filter((b): b is Bead => b !== null);
       this.postMessage({ type: "setBeads", beads });
       this.setLoading(false);
     } catch (err) {
-      if (showLoading) {
+      if (applyMinLoading) {
         await this.waitForMinimumLoading(loadingStartedAt);
       }
       if (thisRequest !== this.loadSequence) {
+        this.setLoading(false);
         return;
       }
       this.setError(String(err));

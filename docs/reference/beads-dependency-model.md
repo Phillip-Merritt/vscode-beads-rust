@@ -1,6 +1,8 @@
 # Beads Dependency Model Reference
 
-This document explains the Beads dependency model for developers working on UI representations, particularly the vscode-beads extension.
+This document explains the Beads dependency model for developers working on UI representations, particularly the **vscode-beads-rust** extension.
+
+> **Note:** Dependency type names below match `beads_rust/docs/CLI_REFERENCE.md` (`br dep`). As of the v0.14.0 backend switch, only the four types listed here are exposed; new types added upstream will appear here as they land in `br`.
 
 ## The Problem We're Solving
 
@@ -18,7 +20,7 @@ Every dependency in Beads is a **directed edge** between two issues:
 from_id ──[type]──> to_id
 ```
 
-The CLI command `bd dep add <from_id> <to_id> --type <type>` creates an edge where `from_id` has a relationship to `to_id`.
+The CLI command `br dep add <from_id> <to_id> --type <type>` creates an edge where `from_id` has a relationship to `to_id`.
 
 **Critical insight**: When displaying issue X's details, we need to show:
 1. **Outgoing edges**: Where X is the `from_id` (X points to something)
@@ -32,11 +34,11 @@ The **same edge type** requires **different labels** depending on which side of 
 
 ### 1. `blocks` — Workflow Dependencies
 
-**Semantics**: Hard blocker - work cannot proceed until the blocker is resolved. This is the only type that affects `bd ready` detection.
+**Semantics**: Hard blocker - work cannot proceed until the blocker is resolved. This is the only type that affects `br ready` detection.
 
 **Edge direction**: `blocked_issue ──[blocks]──> blocking_issue`
 
-The CLI reads naturally: `bd dep add bd-task bd-blocker` means "bd-task is blocked by bd-blocker"
+The CLI reads naturally: `br dep add br-task br-blocker` means "br-task is blocked by br-blocker"
 
 **UI Display for Issue X**:
 
@@ -61,7 +63,7 @@ The CLI reads naturally: `bd dep add bd-task bd-blocker` means "bd-task is block
 
 **Edge direction**: `child_issue ──[parent-child]──> parent_issue`
 
-The child references its parent. CLI: `bd dep add bd-task bd-epic --type parent-child`
+The child references its parent. CLI: `br dep add br-task br-epic --type parent-child`
 
 **UI Display for Issue X**:
 
@@ -125,7 +127,7 @@ RELATED
 
 **Edge direction**: `discovered_issue ──[discovered-from]──> source_issue`
 
-CLI: `bd dep add bd-new-bug bd-original-task --type discovered-from`
+CLI: `br dep add br-new-bug br-original-task --type discovered-from`
 
 **UI Display for Issue X**:
 
@@ -142,9 +144,9 @@ CLI: `bd dep add bd-new-bug bd-original-task --type discovered-from`
 - Discovered From: `🔍←` or `◀` (points back to origin)
 - Led To Discovery Of: `🔍→` or `▶` (points to what was found)
 
-**Example**: Bug `bd-bug1` discovered while working on feature `bd-feat1`:
-- Viewing `bd-bug1`: "Discovered From: bd-feat1"
-- Viewing `bd-feat1`: "Discovered: bd-bug1"
+**Example**: Bug `br-bug1` discovered while working on feature `br-feat1`:
+- Viewing `br-bug1`: "Discovered From: br-feat1"
+- Viewing `br-feat1`: "Discovered: br-bug1"
 
 ---
 
@@ -198,9 +200,9 @@ When loading issue X's details, you need TWO queries:
 
 Then categorize by type and direction for display.
 
-### JSON Structure from `bd show --json`
+### JSON Structure from `br show --json`
 
-The `bd show` command returns dependencies. Verify the exact structure, but expect something like:
+The `br show` command returns dependencies. Verify the exact structure, but expect something like:
 
 ```json
 {

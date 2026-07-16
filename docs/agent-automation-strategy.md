@@ -46,7 +46,7 @@ Both Chrome DevTools MCP and Playwright MCP return full accessibility tree (~400
 | Option | Why Ruled Out |
 |--------|---------------|
 | **vscode.dev** | No local extension support |
-| **OpenVSCode Server (Docker)** | Unix socket blocked in container, bd CLI can't connect |
+| **OpenVSCode Server (Docker)** | Unix socket blocked in container, br CLI can't connect |
 | **Playwright MCP** | Same context bloat as Chrome DevTools MCP |
 | **Browser MCP** | Less capable than Chrome DevTools MCP |
 | **@vscode/test-electron** | Tests API only, not visual UI |

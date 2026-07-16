@@ -260,9 +260,9 @@ export abstract class BaseViewProvider implements vscode.WebviewViewProvider {
   /**
    * Triggers a refresh of the view
    */
-  public refresh(): void {
+  public refresh(): Promise<void> {
     if (!this._view?.visible) {
-      return;
+      return Promise.resolve();
     }
 
     // Update project state in webview
@@ -273,12 +273,12 @@ export abstract class BaseViewProvider implements vscode.WebviewViewProvider {
     const projects = this.projectManager.getProjects();
     this.postMessage({ type: "setProjects", projects });
 
-    this.loadData("background");
+    return this.loadData("background");
   }
 
-  public hardRefresh(): void {
+  public hardRefresh(): Promise<void> {
     if (!this._view?.visible) {
-      return;
+      return Promise.resolve();
     }
 
     const project = this.projectManager.getActiveProject();
@@ -287,15 +287,15 @@ export abstract class BaseViewProvider implements vscode.WebviewViewProvider {
     const projects = this.projectManager.getProjects();
     this.postMessage({ type: "setProjects", projects });
 
-    this.loadData("manualRefresh");
+    return this.loadData("manualRefresh");
   }
 
   /**
    * Triggers a refresh intended for active project switches.
    */
-  public refreshForProjectChange(): void {
+  public refreshForProjectChange(): Promise<void> {
     if (!this._view?.visible) {
-      return;
+      return Promise.resolve();
     }
 
     const project = this.projectManager.getActiveProject();
@@ -304,7 +304,7 @@ export abstract class BaseViewProvider implements vscode.WebviewViewProvider {
     const projects = this.projectManager.getProjects();
     this.postMessage({ type: "setProjects", projects });
 
-    this.loadData("projectChange");
+    return this.loadData("projectChange");
   }
 
   /**

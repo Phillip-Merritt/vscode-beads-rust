@@ -14,3 +14,13 @@ tmp/
 
 # Local environment notes (not committed)
 CLAUDE.local.md
+
+# Per-machine extension dev stuff (we keep tracking .vscode/launch.json on purpose for contributors)
+.vscode/*.code-workspace
+
+# Yarn/PNPM (defensive; we use bun)
+.yarn/
+.pnpm-store/
+
+# OS noise
+Thumbs.db

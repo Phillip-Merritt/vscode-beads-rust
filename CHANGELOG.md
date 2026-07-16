@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.14.0] - 2026-07-16
+
 ### Changed
 
 - Switch backend from `bd` (upstream Go CLI) to `br` (Rust port). The

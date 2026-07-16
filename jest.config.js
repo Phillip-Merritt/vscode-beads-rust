@@ -6,4 +6,7 @@ module.exports = {
   transform: {
     "^.+\\.ts$": ["ts-jest", { diagnostics: false }],
   },
+  moduleNameMapper: {
+    "^vscode$": "<rootDir>/src/providers/__tests__/__mocks__/vscode.ts",
+  },
 };

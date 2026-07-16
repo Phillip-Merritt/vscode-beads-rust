@@ -1,21 +1,18 @@
 {
-  "name": "vscode-beads",
-  "displayName": "Beads",
-  "description": "VS Code extension for managing Beads issues",
-  "version": "0.13.0",
-  "publisher": "planet57",
+  "name": "vscode-beads-rust",
+  "displayName": "Beads Rust",
+  "description": "VS Code extension for managing Beads issues against the br (beads_rust) CLI",
+  "version": "0.14.1",
+  "publisher": "phillip-merritt",
   "license": "Apache-2.0",
   "icon": "resources/icon.png",
-  "files": [
-    "LICENSE",
-    "CHANGELOG.md",
-    "dist/**",
-    "resources/**",
-    "docs/images/**"
-  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jdillon/vscode-beads"
+    "url": "https://github.com/Phillip-Merritt/vscode-beads-rust"
+  },
+  "homepage": "https://github.com/Phillip-Merritt/vscode-beads-rust#readme",
+  "bugs": {
+    "url": "https://github.com/Phillip-Merritt/vscode-beads-rust/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -123,7 +120,7 @@
         "beads.refreshInterval": {
           "type": "number",
           "default": 3000,
-          "description": "Polling interval in milliseconds for Dolt change detection (0 to disable)"
+          "description": "Polling interval in milliseconds for issues.jsonl change detection (0 to disable)"
         },
         "beads.renderMarkdown": {
           "type": "boolean",
@@ -156,8 +153,8 @@
     "watch:webview": "bun run compile:webview -- --watch --sourcemap",
     "lint": "eslint src --ext ts,tsx",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "vscode:prepublish": "bun run compile",
-    "package": "vsce package"
+    "vscode:prepublish": "rm -rf dist && bun run compile",
+    "package": "bunx @vscode/vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -177,7 +174,6 @@
     "@tanstack/react-table": "^8.21.3",
     "lucide-react": "^0.563.0",
     "marked": "^17.0.1",
-    "mysql2": "^3.20.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

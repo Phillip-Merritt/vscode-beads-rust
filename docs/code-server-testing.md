@@ -36,10 +36,10 @@ Extension installed via symlink to pick up changes on reload:
 
 ```bash
 # Location (from project root)
-~/.local/share/code-server/extensions/planet57.vscode-beads-dev -> $(pwd)
+~/.local/share/code-server/extensions/phillipmerritt.vscode-beads-rust-dev -> $(pwd)
 
 # Create symlink
-ln -s "$(pwd)" ~/.local/share/code-server/extensions/planet57.vscode-beads-dev
+ln -s "$(pwd)" ~/.local/share/code-server/extensions/phillipmerritt.vscode-beads-rust-dev
 ```
 
 ### Config

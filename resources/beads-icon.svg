@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 206.31 194.45">
-  <defs>
-    <style>.cls-1{fill:none;stroke:currentColor;stroke-miterlimit:10;stroke-width:16px;}</style>
-  </defs>
-  <rect class="cls-1" x="117.01" y="38.79" width="72.23" height="72.23" rx="5.15" ry="5.15" transform="translate(278.1 -41.02) rotate(111.09)"/>
-  <circle class="cls-1" cx="119.79" cy="150.27" r="36.17"/>
-  <path class="cls-1" d="M30.28,137.26c-8.65-5.02-17.03-11.11-24.96-18.17"/>
-  <path class="cls-1" d="M174.08.49c-.75,12.4-2.86,25.02-6.32,37.61"/>
-  <circle class="cls-1" cx="51.12" cy="146.39" r="23.32"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <g fill="currentColor">
+    <path d="M73 44h18v74c0 49 25 79 67 79 33 0 59-25 59-57 0-22-12-42-31-52l9-16c25 13 40 39 40 68 0 42-34 75-77 75-52 0-85-37-85-97z"/>
+    <circle cx="82" cy="44" r="20"/><circle cx="82" cy="92" r="18"/><circle cx="88" cy="142" r="19"/>
+    <circle cx="117" cy="188" r="20"/><circle cx="169" cy="202" r="20"/><circle cx="213" cy="169" r="19"/>
+    <path fill-rule="evenodd" d="m181 50 29 17v34l-29 17-30-17V67zm0 22-11 6v12l11 6 10-6V78z"/>
+  </g>
 </svg>

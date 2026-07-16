@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -37,6 +41,13 @@ jobs:
             exit 1
           fi
 
+      - name: "Preflight: Open VSX namespace exists"
+        run: |
+          if ! npx -y ovsx get-namespace phillipmerritt >/dev/null 2>&1; then
+            echo "::warning::Open VSX namespace 'phillipmerritt' not found. Create it via 'ovsx create-namespace phillipmerritt -p $OVSX_PAT' before publishing."
+          fi
+        continue-on-error: true
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -67,5 +78,5 @@ jobs:
           files: "*.vsix"
           generate_release_notes: false
           body: |
-            See [CHANGELOG.md](https://github.com/jdillon/vscode-beads/blob/main/CHANGELOG.md) for release notes.
+            See [CHANGELOG.md](https://github.com/Phillip-Merritt/vscode-beads-rust/blob/main/CHANGELOG.md).
           draft: false
