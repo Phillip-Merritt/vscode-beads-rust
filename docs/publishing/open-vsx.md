@@ -52,11 +52,13 @@ GitHub Actions uses `npx ovsx` (no install needed).
 
 #### 4. Create Namespace
 
-Before publishing, you must create the namespace that matches your `package.json` publisher field (`planet57`).
+Before publishing, you must create the namespace that matches your `package.json` publisher field (`phillipmerritt`).
 
 ```bash
-ovsx create-namespace planet57 -p YOUR_TOKEN
+ovsx create-namespace phillipmerritt -p $OVSX_PAT
 ```
+
+At design time, the `phillipmerritt` namespace was verified to be available, so first-publish setup should not conflict with an existing namespace.
 
 **Important**: Creating a namespace does NOT give you exclusive publishing rights. Anyone can publish to an unclaimed namespace. See step 5 for claiming ownership.
 
@@ -67,7 +69,7 @@ Reference: [ovsx CLI README](https://github.com/eclipse/openvsx/blob/master/cli/
 Without ownership, your extensions show a ⚠️ warning icon instead of a ✓ verified badge. To claim ownership:
 
 1. Log into [open-vsx.org](https://open-vsx.org/)
-2. Create a **public issue** at [github.com/EclipseFdn/open-vsx.org/issues](https://github.com/EclipseFdn/open-vsx.org/issues) requesting ownership of the `planet57` namespace
+2. Create a **public issue** at [github.com/EclipseFdn/open-vsx.org/issues](https://github.com/EclipseFdn/open-vsx.org/issues) requesting ownership of the `phillipmerritt` namespace
 3. Provide proof you own the namespace (e.g., link to your VS Code Marketplace publisher page, GitHub profile, etc.)
 4. Wait for maintainers to review and grant ownership
 
@@ -79,8 +81,10 @@ Reference: [Namespace Access Wiki](https://github.com/eclipse/openvsx/wiki/Names
 
 #### 6. Add GitHub Secret
 
+`OVSX_PAT` is already configured in this fork's [repository secrets](https://github.com/Phillip-Merritt/vscode-beads-rust/settings/secrets/actions). To rotate it:
+
 1. Go to repo Settings → Secrets and variables → Actions
-2. Add new repository secret:
+2. Update the existing repository secret:
    - Name: `OVSX_PAT`
    - Value: (paste the token from step 2)
 
@@ -165,13 +169,13 @@ jobs:
           files: "*.vsix"
           generate_release_notes: false
           body: |
-            See [CHANGELOG.md](https://github.com/jdillon/vscode-beads/blob/main/CHANGELOG.md) for release notes.
+            See [CHANGELOG.md](https://github.com/Phillip-Merritt/vscode-beads-rust/blob/main/CHANGELOG.md) for release notes.
           draft: false
 ```
 
 ## One-Time Manual Setup Summary
 
-Before the first automated release, Jason must complete these manual steps:
+Before the first automated release, the publisher must complete or confirm these manual steps:
 
 | Step | Action | One-time? |
 |------|--------|-----------|
@@ -179,9 +183,9 @@ Before the first automated release, Jason must complete these manual steps:
 | 2 | Sign Eclipse Contributor Agreement | ✓ |
 | 3 | Create Open VSX account (GitHub OAuth) | ✓ |
 | 4 | Generate access token | ✓ |
-| 5 | Create namespace: `ovsx create-namespace planet57 -p TOKEN` | ✓ |
+| 5 | Create namespace: `ovsx create-namespace phillipmerritt -p $OVSX_PAT` | ✓ |
 | 6 | File ownership claim issue on GitHub | ✓ |
-| 7 | Add `OVSX_PAT` secret to repo | ✓ |
+| 7 | Confirm the configured `OVSX_PAT` secret in the repo | ✓ |
 | 8 | Update `release.yml` | ✓ |
 
 After setup, releases are fully automated.
@@ -204,15 +208,15 @@ Note: `ovsx` takes the VSIX file directly, while `vsce publish` packages and pub
 Add marketplace badges to README:
 
 ```markdown
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/planet57.vscode-beads?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=planet57.vscode-beads)
-[![Open VSX](https://img.shields.io/open-vsx/v/planet57/vscode-beads?label=Open%20VSX)](https://open-vsx.org/extension/planet57/vscode-beads)
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/phillipmerritt.vscode-beads-rust?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillipmerritt.vscode-beads-rust)
+[![Open VSX](https://img.shields.io/open-vsx/v/phillipmerritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillipmerritt/vscode-beads-rust)
 ```
 
 ## Verification
 
 After the first release with Open VSX publishing:
 
-1. Check [open-vsx.org/extension/planet57/vscode-beads](https://open-vsx.org/extension/planet57/vscode-beads)
+1. Check [open-vsx.org/extension/phillipmerritt/vscode-beads-rust](https://open-vsx.org/extension/phillipmerritt/vscode-beads-rust)
 2. Have a Cursor user search for "Beads" in extensions
 3. Verify version matches VS Code Marketplace version
 4. Confirm verified badge appears (after ownership claim is approved)
@@ -223,7 +227,7 @@ After the first release with Open VSX publishing:
 
 You must create the namespace before first publish:
 ```bash
-npx ovsx create-namespace planet57 -p $OVSX_PAT
+npx ovsx create-namespace phillipmerritt -p $OVSX_PAT
 ```
 
 ### Extension shows ⚠️ warning instead of verified
