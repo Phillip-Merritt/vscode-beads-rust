@@ -37,34 +37,35 @@ Exception: If already on a feature branch and told to continue on it (e.g., mult
 
 ```bash
 # Link extension to VS Code extensions directory
-ln -s "$(pwd)" ~/.vscode/extensions/vscode-beads
+ln -s "$(pwd)" ~/.vscode/extensions/phillipmerritt.vscode-beads-rust
 
 # Reload VS Code window: Cmd+Shift+P → "Developer: Reload Window"
 # Unlink when done
-rm ~/.vscode/extensions/vscode-beads
+rm ~/.vscode/extensions/phillipmerritt.vscode-beads-rust
 ```
 
 **Option 3: Install VSIX locally**
 
 ```bash
-bun run package                              # Creates vscode-beads-0.1.0.vsix
-code --install-extension vscode-beads-0.1.0.vsix
+bun run package                              # Creates vscode-beads-rust-0.14.0.vsix
+code --install-extension vscode-beads-rust-0.14.0.vsix
 ```
 
 ## Architecture
 
-VS Code extension for managing [Beads](https://github.com/steveyegge/beads) issues via `bd` CLI.
+VS Code extension for managing [Beads (br / beads_rust)](https://github.com/beads-rs/beads-rs) issues via the `br` CLI.
 
 ### Data Flow
 
-1. **BeadsBackend** (`src/backend/BeadsBackend.ts`) - Single source of truth per project. Spawns `bd` CLI commands with `--json` output, parses responses.
-2. **BeadsProjectManager** (`src/backend/BeadsProjectManager.ts`) - Discovers `.beads` directories in workspace, manages active project, daemon lifecycle.
+1. **BeadsBackend** (`src/backend/BeadsBackend.ts`) - Single source of truth per project. Spawns `br` CLI commands with `--json` output, parses responses.
+2. **BeadsProjectManager** (`src/backend/BeadsProjectManager.ts`) - Discovers `.beads` directories in workspace, manages active project, and tracks `issues.jsonl` change tokens.
 3. **View Providers** (`src/views/`) - Extend `BaseViewProvider`, register webview views, handle message passing.
 4. **React Webviews** (`src/webview/`) - Single React app with routing by `viewType`. Receives data via `postMessage`, sends actions back to extension.
 
 ### Key Patterns
 
-- All Beads operations go through CLI (`bd list --json`, `bd show <id> --json`, etc.) - never access `.beads` files directly
+- All Beads operations go through CLI (`br list --json`, `br show <id> --json`, etc.) - never access `.beads` files directly
+- Change detection polls the `issues.jsonl` mtime (see `BeadsCommandRunner.ts#getChangeToken`); `br` uses an embedded database and no longer needs a separate server / daemon poll.
 - Status/priority normalization in `src/backend/types.ts` - CLI returns various formats, extension normalizes to internal types
 - Webview↔Extension communication via typed messages (`ExtensionToWebviewMessage`, `WebviewToExtensionMessage`)
 - Single webview bundle at `dist/webview/main.js` serves all 5 views; view type determines which component renders
@@ -105,10 +106,10 @@ Use [Font Awesome Free](https://fontawesome.com) icons unless there's a good rea
 
 ## Upstream Sync
 
-Periodically check [steveyegge/beads](https://github.com/steveyegge/beads) for changes that affect this extension:
+Periodically check [beads-rs/beads-rs](https://github.com/beads-rs/beads-rs) for changes that affect this extension:
 
-- **Daemon API**: Check `internal/rpc/protocol.go` and `internal/types/types.go` for new operations, fields, or type changes. Update `BeadsDaemonClient.ts` and `docs/reference/beads-daemon-api.md`.
+- **Daemon / data layer**: Cross-check `beads_rust/docs/CLI_REFERENCE.md` and `beads_rust/docs/ARCHITECTURE.md` for new operations, fields, or storage changes. Update `BeadsCommandRunner.ts` and `docs/reference/beads-caveats.md`.
 - **Bead types**: Check for new `issue_type` values (e.g., `merge-request`, `molecule`). Update `BeadType`, `TYPE_LABELS`, `TYPE_COLORS`, `TYPE_SORT_ORDER` in `src/webview/types.ts` and add icons.
 - **CLI changes**: Check for new commands or flags that should be exposed in the extension.
 
-Reference repo: `~/ws/reference/beads` - refresh with `git fetch && git pull` before investigating.
+Reference repo: `../beads_rust` - refresh with `git fetch && git pull` before investigating.
