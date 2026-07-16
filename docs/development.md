@@ -2,13 +2,13 @@
 
 ## Beads Setup (Issue Tracking)
 
-After cloning, initialize beads with the protected branch workflow:
+After cloning, initialize beads:
 
 ```bash
-bd init --branch beads-metadata && bd hooks install
+br init
 ```
 
-This sets up the worktree-based sync to `beads-metadata` branch. The extension uses `bd` for project discovery and Dolt lifecycle control, and reads issue data directly from Dolt SQL.
+The extension uses `br` for project discovery and reads issue data from the `issues.jsonl` file under each project's `.beads/` directory. `br` keeps its state in an embedded SQLite database and flushes changes to JSONL via `br sync --flush-only`, which you can commit alongside your code.
 
 ## Build Commands
 
@@ -31,16 +31,16 @@ bun run package          # Create VSIX package
 
 **Option 2: Symlink for local testing**
 ```bash
-ln -s "$(pwd)" ~/.vscode/extensions/vscode-beads
+ln -s "$(pwd)" ~/.vscode/extensions/phillipmerritt.vscode-beads-rust
 # Reload VS Code: Cmd+Shift+P → "Developer: Reload Window"
 # Unlink when done
-rm ~/.vscode/extensions/vscode-beads
+rm ~/.vscode/extensions/phillipmerritt.vscode-beads-rust
 ```
 
 **Option 3: Install VSIX locally**
 ```bash
 bun run package
-code --install-extension vscode-beads-*.vsix
+code --install-extension vscode-beads-rust-*.vsix
 ```
 
 ## Releasing
