@@ -131,9 +131,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.commands.registerCommand("beads.refresh", async () => {
       log.info("Manual refresh triggered");
       await projectManager.refresh();
-      dashboardProvider.hardRefresh();
-      beadsPanelProvider.hardRefresh();
-      detailsProvider.hardRefresh();
+      await Promise.all([
+        dashboardProvider.hardRefresh(),
+        beadsPanelProvider.hardRefresh(),
+        detailsProvider.hardRefresh(),
+      ]);
       log.info("Refresh complete");
       vscode.window.setStatusBarMessage("$(check) Beads: Refreshed", 2000);
     }),
@@ -192,16 +194,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Subscribe to project changes to refresh views
   context.subscriptions.push(
     projectManager.onDataChanged(() => {
-      dashboardProvider.refresh();
-      beadsPanelProvider.refresh();
-      detailsProvider.refresh();
+      void dashboardProvider.refresh();
+      void beadsPanelProvider.refresh();
+      void detailsProvider.refresh();
     }),
 
     projectManager.onActiveProjectChanged(() => {
       beadsPanelProvider.setSelectedBead(null); // Clear selection on project switch
-      dashboardProvider.refreshForProjectChange();
-      beadsPanelProvider.refreshForProjectChange();
-      detailsProvider.refreshForProjectChange();
+      void dashboardProvider.refreshForProjectChange();
+      void beadsPanelProvider.refreshForProjectChange();
+      void detailsProvider.refreshForProjectChange();
       updateStatusBar();
     }),
 
@@ -224,9 +226,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       }
 
       // Refresh all views
-      dashboardProvider.refresh();
-      beadsPanelProvider.refresh();
-      detailsProvider.refresh();
+      void dashboardProvider.refresh();
+      void beadsPanelProvider.refresh();
+      void detailsProvider.refresh();
     })
   );
 
