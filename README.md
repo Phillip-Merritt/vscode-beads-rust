@@ -32,8 +32,7 @@ This extension is a fork of [jdillon/vscode-beads](https://github.com/jdillon/vs
   code --install-extension vscode-beads-rust-*.vsix
   ```
 
-> Badges (filled in once v0.14.0 is published):
-> `[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/phillipmerritt.vscode-beads-rust?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillipmerritt.vscode-beads-rust) [![Open VSX](https://img.shields.io/open-vsx/v/phillipmerritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillipmerritt/vscode-beads-rust)`
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/phillipmerritt.vscode-beads-rust?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillipmerritt.vscode-beads-rust) [![Open VSX](https://img.shields.io/open-vsx/v/phillipmerritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillipmerritt/vscode-beads-rust)
 
 ## Usage
 
