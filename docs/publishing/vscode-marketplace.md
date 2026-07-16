@@ -46,20 +46,23 @@
 Create via web (CLI command deprecated): https://aka.ms/vscode-create-publisher
 
 Required fields:
-- **Name**: Display name (e.g., `Planet57`)
-- **ID**: Unique identifier (e.g., `planet57`) - must match `publisher` in package.json
+- **Name**: Display name (for example, `Phillip Merritt`)
+- **ID**: `phillipmerritt` — this is the publisher id to claim and must match `publisher` in `package.json`
+- **GitHub owner**: [`Phillip-Merritt`](https://github.com/Phillip-Merritt)
 
 ### 4. Login
 
 ```bash
-vsce login planet57
+vsce login phillipmerritt
 # Paste PAT when prompted
 ```
 
 ### 5. Store PAT as GitHub Secret
 
+`VSCE_PAT` is already configured in this fork's [repository secrets](https://github.com/Phillip-Merritt/vscode-beads-rust/settings/secrets/actions). To rotate it:
+
 1. Go to repo Settings → Secrets and variables → Actions
-2. Add secret: `VSCE_PAT` with your PAT value
+2. Update `VSCE_PAT` with the new PAT value
 
 ## GitHub Actions Workflows
 
@@ -104,16 +107,16 @@ vsce publish major  # 0.1.0 → 1.0.0
 vsce ls                              # List files that will be packaged
 vsce package                         # Create VSIX locally
 vsce publish                         # Publish to marketplace
-vsce unpublish planet57.vscode-beads # Remove from marketplace
+vsce unpublish phillipmerritt.vscode-beads-rust # Remove from marketplace
 ```
 
 ## Publisher Domain Verification (Optional)
 
 Adds a verified checkmark next to your publisher name on the marketplace.
 
-1. Go to [Publisher Management](https://marketplace.visualstudio.com/manage/publishers/planet57)
+1. Go to [Publisher Management](https://marketplace.visualstudio.com/manage/publishers/phillipmerritt)
 2. Select publisher → Details
-3. Add your domain (e.g., `planet57.com`)
+3. Add your domain (e.g., `phillipmerritt.com`)
 4. Add the DNS TXT record they provide (e.g., `ms-verify=xxxxx`)
 5. Click verify
 
@@ -121,7 +124,7 @@ Adds a verified checkmark next to your publisher name on the marketplace.
 
 ## Links
 
-- [Extension URL](https://marketplace.visualstudio.com/items?itemName=planet57.vscode-beads)
-- [Publisher Management](https://marketplace.visualstudio.com/manage/publishers/planet57)
+- [Extension URL](https://marketplace.visualstudio.com/items?itemName=phillipmerritt.vscode-beads-rust)
+- [Publisher Management](https://marketplace.visualstudio.com/manage/publishers/phillipmerritt)
 - [Publishing Extensions Docs](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
 - [vsce CLI Reference](https://github.com/microsoft/vscode-vsce)
