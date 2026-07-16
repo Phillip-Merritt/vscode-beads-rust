@@ -2,7 +2,7 @@
 
 <img src="resources/icon.png" alt="Beads icon" width="128" align="right">
 
-VS Code extension for managing [Beads](https://github.com/beads-rs/beads-rs) issues via the `br` (beads_rust) CLI.
+VS Code extension for managing [Beads](https://github.com/Dicklesworthstone/beads_rust) issues via the `br` (beads_rust) CLI.
 
 This extension is a fork of [jdillon/vscode-beads](https://github.com/jdillon/vscode-beads) adapted to call the Rust port of the Beads CLI. It does **not** work against the upstream Go `bd` CLI; install `br` and call `br init` in your project.
 
