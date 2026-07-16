@@ -1,6 +1,6 @@
 ---
 description: Audit changelog and draft entries for upcoming release
-allowed-tools: Bash(git:*), Bash(jq:*), Read, Edit, Grep, AskUserQuestion, mcp__plugin_beads_beads__list, mcp__plugin_beads_beads__show
+allowed-tools: Bash(git:*), Bash(jq:*), Bash(br:*), Read, Edit, Grep, AskUserQuestion
 model: haiku
 ---
 
@@ -41,7 +41,7 @@ For EACH commit, decide: **INCLUDE** or **SKIP**?
 - Examples: UI changes, new commands, bug fixes users would notice
 
 **SKIP if ANY of these are true:**
-- Commit type is: `docs:`, `ci:`, `test:`, `chore:`, `bd:`, `bd sync:`, `refactor:`
+- Commit type is: `docs:`, `ci:`, `test:`, `chore:`, `refactor:`
 - The change is in: `.agent/`, `.claude/`, `.opencode/`, `.github/`, `scripts/`, `docs/`, `.beads/`
 - The bead ID is already in CHANGELOG.md
 - The change is infrastructure/tooling (build scripts, CI workflows, slash commands)
@@ -59,9 +59,9 @@ For EACH commit, decide: **INCLUDE** or **SKIP**?
 
 ### Step 4: Get bead details
 
-Use `mcp__plugin_beads_beads__list` with `status=closed` and `limit=20` to get recently closed beads.
+Run `br list --json -s closed --limit 20` to get recently closed beads (use a subprocess; `br` is the beads_rust CLI that this project now tracks against — see `docs/reference/beads-protected-branch.md`).
 
-For each bead ID found in commits (from Step 2), use `mcp__plugin_beads_beads__show` to get the title and type.
+For each bead ID found in commits (from Step 2), run `br show <id> --json` to get the title and type.
 
 **Hints for non-user-facing beads** (use as signals, not absolute rules):
 - Labels like `infra`, `dx`, `ci`, `docs` suggest internal work
