@@ -15,6 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.14.2] - 2026-07-16
+
+### Fixed
+
+- Correct the `br` / beads_rust repository link in the README.
+- Fix the VS Code Marketplace and Open VSX badge namespaces (`phillip-merritt`) and move them to the top of the README.
+
+## [0.14.1] - 2026-07-16
+
+### Changed
+
+- Replace logo artwork with original branding.
+
 ## [0.14.0] - 2026-07-16
 
 ### Changed

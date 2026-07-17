@@ -2,6 +2,8 @@
 
 <img src="resources/icon.png" alt="Beads icon" width="128" align="right">
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/phillip-merritt.vscode-beads-rust?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillip-merritt.vscode-beads-rust) [![Open VSX](https://img.shields.io/open-vsx/v/phillip-merritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillip-merritt/vscode-beads-rust)
+
 VS Code extension for managing [Beads](https://github.com/Dicklesworthstone/beads_rust) issues via the `br` (beads_rust) CLI.
 
 This extension is a fork of [jdillon/vscode-beads](https://github.com/jdillon/vscode-beads) adapted to call the Rust port of the Beads CLI. It does **not** work against the upstream Go `bd` CLI; install `br` and call `br init` in your project.
@@ -24,15 +26,13 @@ This extension is a fork of [jdillon/vscode-beads](https://github.com/jdillon/vs
 
 ## Installation
 
-- **VS Code Marketplace:** install via the Extensions panel → search "Beads Rust" or use the marketplace badge (link below).
-- **Open VSX:** install via the Extensions panel in Cursor / VSCodium / Project IDX, or via the Open VSX badge (link below).
+- **VS Code Marketplace:** install via the Extensions panel → search "Beads Rust" or use the marketplace badge above.
+- **Open VSX:** install via the Extensions panel in Cursor / VSCodium / Project IDX, or via the Open VSX badge above.
 - **Manual VSIX:**
   ```bash
   bun run package                                  # builds vscode-beads-rust-X.Y.Z.vsix
   code --install-extension vscode-beads-rust-*.vsix
   ```
-
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/phillipmerritt.vscode-beads-rust?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillipmerritt.vscode-beads-rust) [![Open VSX](https://img.shields.io/open-vsx/v/phillipmerritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillipmerritt/vscode-beads-rust)
 
 ## Usage
 
