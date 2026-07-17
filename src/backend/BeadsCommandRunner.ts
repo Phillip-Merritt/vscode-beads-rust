@@ -46,6 +46,7 @@ export class BeadsCommandRunner implements BeadsBackend {
   private readonly beadsDir: string;
   private readonly log: Logger;
   private readonly minSupportedVersion: string;
+  private readonly listLimit: number;
   private compatibilityPromise: Promise<BackendCompatibility> | null = null;
   private readonly inFlightReads = new Map<string, Promise<unknown>>();
   private readonly recentJsonCache = new Map<string, { expiresAt: number; value: unknown }>();
@@ -56,12 +57,15 @@ export class BeadsCommandRunner implements BeadsBackend {
     beadsDir: string;
     log: Logger;
     minSupportedVersion?: string;
+    listLimit?: number;
   }) {
     this.cliPath = params.cliPath;
     this.cwd = params.cwd;
     this.beadsDir = params.beadsDir;
     this.log = params.log.child("CLIBackend");
     this.minSupportedVersion = params.minSupportedVersion ?? "0.2.10";
+    // Guard against 0/negative/NaN config values falling through to br.
+    this.listLimit = params.listLimit && params.listLimit > 0 ? Math.floor(params.listLimit) : 500;
   }
 
   async dispose(): Promise<void> {
@@ -79,7 +83,7 @@ export class BeadsCommandRunner implements BeadsBackend {
   }
 
   async list(): Promise<BeadsIssue[]> {
-    const result = await this.runReadJson(["list", "--json", "--limit", "500"], { cacheTtlMs: 750 });
+    const result = await this.runReadJson(["list", "--json", "--limit", String(this.listLimit)], { cacheTtlMs: 750 });
     if (Array.isArray(result)) return result as BeadsIssue[];
     if (result && typeof result === "object" && Array.isArray((result as { issues?: unknown }).issues)) {
       return (result as { issues: BeadsIssue[] }).issues;

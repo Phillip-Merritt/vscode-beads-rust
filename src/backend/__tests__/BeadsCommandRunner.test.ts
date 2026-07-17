@@ -39,13 +39,14 @@ function makeLogger(): Logger {
   } as unknown as Logger;
 }
 
-function makeRunner(minSupportedVersion?: string): BeadsCommandRunner {
+function makeRunner(minSupportedVersion?: string, listLimit?: number): BeadsCommandRunner {
   return new BeadsCommandRunner({
     cliPath: "br",
     cwd: "/tmp/test",
     beadsDir: "/tmp/test/.beads",
     log: makeLogger(),
     minSupportedVersion,
+    listLimit,
   });
 }
 
@@ -82,8 +83,8 @@ function mockExecFileError(message: string): void {
  * runJson() calls don't try to fetch the version. We use a version well
  * above any plausible minSupportedVersion so compat passes regardless.
  */
-async function setupRunnerWithCompat(version = "0.2.19"): Promise<BeadsCommandRunner> {
-  const runner = makeRunner();
+async function setupRunnerWithCompat(version = "0.2.19", listLimit?: number): Promise<BeadsCommandRunner> {
+  const runner = makeRunner(undefined, listLimit);
   mockExecFileOnce(JSON.stringify({ version, branch: "master", commit: "abc" }));
   await runner.checkCompatibility();
   return runner;
@@ -136,6 +137,28 @@ describe("BeadsCommandRunner.list", () => {
     const execFile = childProcess.execFile as unknown as jest.Mock;
     // Compat check (during setupRunnerWithCompat) + list = 2 total calls.
     expect(execFile).toHaveBeenCalledTimes(2);
+    const [, listArgs] = execFile.mock.calls[1];
+    expect(listArgs).toEqual(["list", "--json", "--limit", "500"]);
+  });
+
+  it("uses a configured listLimit", async () => {
+    const runner = await setupRunnerWithCompat("0.2.19", 2000);
+    mockExecFileOnce(JSON.stringify({ issues: [], total: 0 }));
+
+    await runner.list();
+
+    const execFile = childProcess.execFile as unknown as jest.Mock;
+    const [, listArgs] = execFile.mock.calls[1];
+    expect(listArgs).toEqual(["list", "--json", "--limit", "2000"]);
+  });
+
+  it.each([0, -5, NaN])("falls back to 500 for invalid listLimit %p", async (bad) => {
+    const runner = await setupRunnerWithCompat("0.2.19", bad);
+    mockExecFileOnce(JSON.stringify({ issues: [], total: 0 }));
+
+    await runner.list();
+
+    const execFile = childProcess.execFile as unknown as jest.Mock;
     const [, listArgs] = execFile.mock.calls[1];
     expect(listArgs).toEqual(["list", "--json", "--limit", "500"]);
   });

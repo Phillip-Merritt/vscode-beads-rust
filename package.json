@@ -2,7 +2,7 @@
   "name": "vscode-beads-rust",
   "displayName": "Beads Rust",
   "description": "VS Code extension for managing Beads issues against the br (beads_rust) CLI",
-  "version": "0.14.3",
+  "version": "0.14.4",
   "publisher": "phillip-merritt",
   "license": "Apache-2.0",
   "icon": "resources/icon.png",
@@ -116,6 +116,12 @@
           "type": "string",
           "default": "br",
           "description": "Path or name of the beads CLI binary. Defaults to br (beads_rust). Supports ${env:VAR} placeholders. Override with BEADS_CLI env var."
+        },
+        "beads.listLimit": {
+          "type": "number",
+          "default": 500,
+          "minimum": 1,
+          "description": "Maximum number of issues to fetch from 'br list'. Increase if your project has more than 500 issues."
         },
         "beads.refreshInterval": {
           "type": "number",

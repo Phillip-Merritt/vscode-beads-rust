@@ -395,6 +395,7 @@ export class BeadsProjectManager implements vscode.Disposable {
       cwd: project.rootPath,
       beadsDir: project.beadsDir,
       log: this.log,
+      listLimit: vscode.workspace.getConfiguration("beads").get<number>("listLimit", 500),
       // minSupportedVersion omitted: defaults to "0.2.10" after Task 7. For now,
       // runner default is still "0.51.0"; Task 7 changes the runner default too.
     });

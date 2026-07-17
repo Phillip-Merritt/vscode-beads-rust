@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.14.4] - 2026-07-17
+
+### Added
+
+- `beads.listLimit` setting to control how many issues `br list` fetches (default 500), for projects with large backlogs (beads_ext-sjl).
+
 ## [0.14.3] - 2026-07-17
 
 ### Changed
