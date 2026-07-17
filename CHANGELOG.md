@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.14.3] - 2026-07-17
+
+### Changed
+
+- Verify the automated release pipeline end-to-end (VS Code Marketplace and Open VSX publishing via CI, rather than manual VSIX upload).
+
 ## [0.14.2] - 2026-07-16
 
 ### Fixed
