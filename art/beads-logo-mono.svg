@@ -1,8 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Beads">
   <g fill="currentColor">
-    <path d="M73 44h18v74c0 49 25 79 67 79 33 0 59-25 59-57 0-22-12-42-31-52l9-16c25 13 40 39 40 68 0 42-34 75-77 75-52 0-85-37-85-97z"/>
-    <circle cx="82" cy="44" r="20"/><circle cx="82" cy="92" r="18"/><circle cx="88" cy="142" r="19"/>
-    <circle cx="117" cy="188" r="20"/><circle cx="169" cy="202" r="20"/><circle cx="213" cy="169" r="19"/>
-    <path fill-rule="evenodd" d="m181 50 29 17v34l-29 17-30-17V67zm0 22-11 6v12l11 6 10-6V78z"/>
+    <path fill-rule="evenodd" d="M128 48a80 80 0 1 1 0 160 80 80 0 0 1 0-160zm0 14a66 66 0 1 0 0 132 66 66 0 0 0 0-132z"/>
+    <circle cx="128" cy="49" r="20"/>
+    <circle cx="178" cy="67" r="20"/>
+    <circle cx="205" cy="113" r="20"/>
+    <circle cx="196" cy="166" r="20"/>
+    <circle cx="155" cy="201" r="20"/>
+    <circle cx="101" cy="201" r="20"/>
+    <circle cx="60" cy="166" r="20"/>
+    <circle cx="51" cy="113" r="20"/>
+    <circle cx="78" cy="67" r="20"/>
+    <path fill-rule="evenodd" d="m128 96 28 16v32l-28 16-28-16v-32l28-16zm0 17-13 8v14l13 8 13-8v-14l-13-8z"/>
   </g>
 </svg>

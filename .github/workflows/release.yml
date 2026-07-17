@@ -43,8 +43,8 @@ jobs:
 
       - name: "Preflight: Open VSX namespace exists"
         run: |
-          if ! npx -y ovsx get-namespace phillipmerritt >/dev/null 2>&1; then
-            echo "::warning::Open VSX namespace 'phillipmerritt' not found. Create it via 'ovsx create-namespace phillipmerritt -p $OVSX_PAT' before publishing."
+          if ! npx -y ovsx get-namespace phillip-merritt >/dev/null 2>&1; then
+            echo "::warning::Open VSX namespace 'phillip-merritt' not found. Create it via 'ovsx create-namespace phillip-merritt -p $OVSX_PAT' before publishing."
           fi
         continue-on-error: true
 
