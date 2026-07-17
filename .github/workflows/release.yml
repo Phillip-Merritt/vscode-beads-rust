@@ -65,11 +65,14 @@ jobs:
       - name: Package VSIX
         run: npx @vscode/vsce package --no-dependencies
 
+      # Non-fatal: a bad/expired VSCE_PAT shouldn't block Open VSX + the GitHub Release.
       - name: Publish to VS Code Marketplace
         run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }} --no-dependencies
+        continue-on-error: true
 
       - name: Publish to Open VSX
         run: npx ovsx publish *.vsix -p ${{ secrets.OVSX_PAT }}
+        continue-on-error: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
