@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [0.14.5] - 2026-07-17
+
+### Fixed
+
+- Replace the retired shields.io VS Marketplace version badge with `vsmarketplacebadges.dev` so the Marketplace README shows the current version.
+
 ## [0.14.4] - 2026-07-17
 
 ### Added

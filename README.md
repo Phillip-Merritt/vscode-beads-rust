@@ -2,7 +2,7 @@
 
 <img src="resources/icon.png" alt="Beads icon" width="128" align="right">
 
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/phillip-merritt.vscode-beads-rust?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillip-merritt.vscode-beads-rust) [![Open VSX](https://img.shields.io/open-vsx/v/phillip-merritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillip-merritt/vscode-beads-rust)
+[![VS Code Marketplace](https://vsmarketplacebadges.dev/version-short/phillip-merritt.vscode-beads-rust.svg?label=VS%20Code)](https://marketplace.visualstudio.com/items?itemName=phillip-merritt.vscode-beads-rust) [![Open VSX](https://img.shields.io/open-vsx/v/phillip-merritt/vscode-beads-rust?label=Open%20VSX)](https://open-vsx.org/extension/phillip-merritt/vscode-beads-rust)
 
 VS Code extension for managing [Beads](https://github.com/Dicklesworthstone/beads_rust) issues via the `br` (beads_rust) CLI.
 

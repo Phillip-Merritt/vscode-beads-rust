@@ -2,7 +2,7 @@
   "name": "vscode-beads-rust",
   "displayName": "Beads Rust",
   "description": "VS Code extension for managing Beads issues against the br (beads_rust) CLI",
-  "version": "0.14.4",
+  "version": "0.14.5",
   "publisher": "phillip-merritt",
   "license": "Apache-2.0",
   "icon": "resources/icon.png",
